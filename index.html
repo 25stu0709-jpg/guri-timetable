@@ -214,9 +214,9 @@
       <div>
         <p class="eyebrow">CLASS TIMETABLE</p>
         <h1 id="page-title">학급 시간표</h1>
-        <p class="heading-note">칸을 선택하면 과목과 교실 정보를 수정할 수 있습니다.</p>
+        <p class="heading-note">구리고등학교 컴시간 기준 실제 학급 시간표</p>
       </div>
-      <span class="term-label">2026학년도 · 2학기</span>
+      <span class="term-label">자료 기준 · 2026.11.02 - 11.06</span>
     </section>
 
     <section class="toolbar" aria-label="시간표 설정">
@@ -230,10 +230,8 @@
         <select id="class-select" aria-label="반"></select>
       </div>
       <div class="week-controls" aria-label="주간 이동">
-        <button class="button button-icon" id="previous-week" type="button" title="이전 주" aria-label="이전 주">‹</button>
-        <span class="week-label" id="week-label" aria-live="polite"></span>
-        <button class="button button-icon" id="next-week" type="button" title="다음 주" aria-label="다음 주">›</button>
-        <button class="button" id="today-button" type="button">오늘</button>
+        <span class="week-label" id="week-label" aria-live="polite">2026년 11월 2일 - 6일</span>
+        <a class="button button-primary" href="http://www.xn--s39aj90b0nb2xw6xh.kr/" target="_blank" rel="noopener">컴시간 최신 시간표</a>
         <button class="button button-primary" id="print-button" type="button" title="시간표 인쇄">인쇄</button>
       </div>
     </section>
@@ -246,7 +244,7 @@
         <tbody id="schedule-body"></tbody>
       </table>
       <div class="table-footer">
-        <span>표시된 시간표는 예시입니다. 편집한 내용은 이 브라우저에 저장됩니다.</span>
+          <span>컴시간 학생시간표의 2026.11.02 - 11.06 자료입니다. 최신 시간표는 컴시간 원본에서 확인하세요.</span>
         <span class="legend"><i class="legend-dot" aria-hidden="true"></i>오늘</span>
       </div>
     </section>
@@ -270,22 +268,41 @@
 
   <script>
     const weekdays = ["월", "화", "수", "목", "금"];
-    const periods = ["08:40", "09:40", "10:40", "11:40", "13:10", "14:10", "15:10"];
-    const subjectPool = [
-      { name: "국어", tone: "rose" }, { name: "수학", tone: "blue" },
-      { name: "영어", tone: "mint" }, { name: "통합사회", tone: "sand" },
-      { name: "과학", tone: "mint" }, { name: "한국사", tone: "rose" },
-      { name: "체육", tone: "blue" }, { name: "음악", tone: "lilac" },
-      { name: "미술", tone: "sand" }, { name: "정보", tone: "lilac" },
-      { name: "창체", tone: "blue" }, { name: "진로", tone: "mint" }
-    ];
-    const defaultNames = [
-      ["국어", "수학", "영어", "통합사회", "과학", "체육", "창체"],
-      ["수학", "영어", "한국사", "국어", "음악", "과학", "미술"],
-      ["영어", "과학", "수학", "체육", "국어", "정보", "진로"],
-      ["한국사", "국어", "통합사회", "수학", "영어", "미술", "과학"],
-      ["과학", "음악", "국어", "영어", "수학", "체육", "정보"]
-    ];
+    const periods = ["09:00", "10:00", "11:00", "12:00", "13:50", "14:50", "15:50", "16:50"];
+    const snapshotMonday = new Date(2026, 10, 2);
+    const sourceSnapshot = `1-1:영어2^마정|통과C^문영|체육2^김용|국어2^김선|통과B^윤예;역사2^양대|과탐^신지|미술^정재|통사2^조진|국어2^김선;통사2^조진|수학2^황은|미술^정재|통과B^윤예|영어2^마정;체육2^김용|영어2^마정|수학2^황은|미술^정재|통사2^조진;국어2^김선|진로^김진|역사2^양대|수학2^황은|창체^창*;통과C^문영|국어2^김선|-|영어2^마정|창체^창*;수학2^황은|통사2^조진|-|역사2^양대|-;-|-|-|-|-
+1-2:역사2^양대|미술^정재|통사2^조진|통과A^고봉|수학2^황은;영어2^마정|미술^정재|수학2^황은|영어2^마정|체육2^김용;수학2^황은|통사2^조진|체육2^김용|통사2^조진|역사2^양대;통사2^조진|국어2^김선|과탐^김동|역사2^양대|국어2^김선;통과A^고봉|통과B^윤예|영어2^마정|미술^정재|창체^창*;통과B^윤예|영어2^마정|-|국어2^김선|창체^창*;국어2^김선|수학2^황은|-|진로^김진|-;-|-|-|-|-
+1-3:통사2^조진|수학2^황은|국어2^김선|과탐^김동|역사2^양대;국어2^김선|국어2^김선|영어2^금경|영어2^금경|통과A^고봉;영어2^금경|진로^김진|통사2^조진|수학2^황은|통사2^조진;역사2^양대|역사2^양대|통과B^윤예|국어2^김선|수학2^황은;미술^정재|미술^정재|수학2^황은|체육2^김용|창체^창*;미술^정재|통과A^고봉|-|통과B^윤예|창체^창*;체육2^김용|영어2^금경|-|통사2^조진|-;-|-|-|-|-
+1-4:미술^정재|영어2^금경|과탐^신지|역사2^양대|통사2^조진;영어2^금경|체육2^김용|역사2^양대|수학2^황은|수학2^황은;국어2^김선|통과B^윤예|통과C^문영|국어2^김선|미술^정재;진로^김진|수학2^황은|영어2^금경|통과B^윤예|미술^정재;수학2^황은|역사2^양대|국어2^김선|통사2^조진|창체^창*;통사2^조진|통사2^조진|-|영어2^금경|창체^창*;통과C^문영|국어2^김선|-|체육2^김용|-;-|-|-|-|-
+1-5:통사2^정범|체육2^김용|역사2^강진|영어2^마정|수학2^신원;통과B^윤예|통사2^정범|통과B^윤예|국어2^김민|통과C^문영;음악^김은|영어2^마정|진로^김진|음악^김은|국어2^김민;역사2^강진|통과C^문영|영어2^마정|과탐^신지|영어2^마정;수학2^신원|국어2^김민|통사2^정범|수학2^신원|창체^창*;체육2^김용|수학2^신원|-|역사2^강진|창체^창*;국어2^김민|음악^김은|-|통사2^정범|-;-|-|-|-|-
+1-6:과탐^신지|통과B^윤예|수학2^신원|국어2^김민|영어2^마정;체육2^김용|역사2^강진|영어2^마정|체육2^김용|역사2^강진;국어2^김민|통과C^문영|통사2^정범|역사2^강진|통사2^정범;음악^김은|음악^김은|국어2^김민|통과C^문영|진로^김진;영어2^마정|수학2^신원|통과B^윤예|영어2^마정|창체^창*;수학2^신원|통사2^정범|-|수학2^신원|창체^창*;통사2^정범|국어2^김민|-|음악^김은|-;-|-|-|-|-
+1-7:음악^김은|역사2^강진|영어2^금경|통사2^변은|국어2^김민;국어2^김민|수학2^신원|통과C^문영|수학2^신원|통과B^윤예;수학2^신원|국어2^김민|음악^김은|과탐^신지|영어2^금경;통과C^문영|영어2^금경|역사2^강진|국어2^김민|수학2^신원;통과B^윤예|체육2^김용|통사2^변은|진로^김진|창체^창*;통사2^변은|음악^김은|-|체육2^김용|창체^창*;영어2^금경|통사2^변은|-|역사2^강진|-;-|-|-|-|-
+1-8:수학2^신원|과탐^신지|국어2^김민|수학2^신원|음악^김은;통과C^문영|국어2^김민|통사2^정범|통과C^문영|영어2^금경;역사2^강진|수학2^신원|수학2^신원|진로^김진|체육2^김용;통사2^정범|체육2^김용|음악^김은|영어2^금경|통과B^윤예;국어2^김민|역사2^강진|역사2^강진|국어2^김민|창체^창*;영어2^금경|영어2^금경|-|통사2^정범|창체^창*;음악^김은|통사2^정범|-|통과B^윤예|-;-|-|-|-|-
+2-1:미적Ⅰ^석기|B_역탐^양대|화법A^김효|스생1^양홍|일어^이한;D_법사^변은|C_현윤^이채|일어^이한|C_현윤^이채|A_경제^변은;영어B^노연|진로^김은|B_역탐^양대|영어B^노연|D_법사^변은;A_경제^변은|스생1^양홍|화법B^이경|영어A^이홍|미적Ⅰ^석기;일어^이한|D_법사^변은|미적Ⅰ^석기|B_역탐^양대|창체^창*;화법B^이경|미적Ⅰ^석기|-|A_경제^변은|창체^창*;C_현윤^이채|영어A^이홍|-|화법A^김효|-;-|-|-|-|-
+2-2:화법A^김효|B_현윤^이채|영어B^노연|영어A^이홍|미적Ⅰ^이현;D_한탐^김미|C_경제^채영|영어A^이홍|C_경제^채영|A_탐독^김효;E_일어^이한|미적Ⅰ^이현|B_현윤^이채|스생1^양홍|D_한탐^김미;A_탐독^김효|화법B^이경|E_일어^이한|진로^김은|화법B^이경;스생1^박병|D_한탐^김미|미적Ⅰ^이현|B_현윤^이채|창체^창*;영어B^노연|화법A^김효|-|A_탐독^김효|창체^창*;C_경제^채영|E_일어^이한|-|미적Ⅰ^이현|-;-|-|-|-|-
+2-3:영어A^이홍|B_한탐^김미|화법B^이경|진로^김은|미적Ⅰ^석기;D_경제^채영|C_법사^변은|영어B^노연|C_법사^변은|A_현윤^이채;스생1^양홍|화법A^김효|B_한탐^김미|미적Ⅰ^석기|D_경제^채영;A_현윤^이채|영어A^이홍|스생1^양홍|화법B^이경|영어B^노연;미적Ⅰ^석기|D_경제^채영|화법A^김효|B_한탐^김미|창체^창*;F_인공^손은|F_인공^손은|-|A_현윤^이채|창체^창*;C_법사^변은|미적Ⅰ^석기|-|F_인공^손은|-;-|-|-|-|-
+2-4:화법B^이경|B_법사^변은|스생1^양홍|미적Ⅰ^이현|화법B^이경;D_현윤^이채|C_역탐^양대|미적Ⅰ^이현|C_역탐^양대|A_한탐^김미;화법A^김효|스생1^양홍|B_법사^변은|영어A^이홍|D_현윤^이채;A_한탐^김미|미적Ⅰ^이현|영어B^노연|화법A^김효|영어A^이홍;미적Ⅰ^이현|D_현윤^이채|진로^정재|B_법사^변은|창체^창*;F_중문^송현|F_중문^송현|-|A_한탐^김미|창체^창*;C_역탐^양대|영어B^노연|-|F_중문^송현|-;-|-|-|-|-
+2-5:미적Ⅰ^이현|B_물질^김동|영어A^이홍|진로^정재|화법A^김효;D_세포^고봉|C_역학^박철|스생1^양홍|C_역학^박철|A_기하^김인;영어A^이홍|화법B^이경|B_물질^김동|화법B^이경|D_세포^고봉;A_기하^김인|영어B^노연|미적Ⅰ^이현|미적Ⅰ^이현|스생1^양홍;화법A^김효|D_세포^고봉|영어B^노연|B_물질^김동|창체^창*;F_일어^이한|F_일어^이한|-|A_기하^김인|창체^창*;C_역학^박철|미적Ⅰ^이현|-|F_일어^이한|-;-|-|-|-|-
+2-6:스생1^양홍|B_기하^김인|미적Ⅰ^이현|화법A^김효|진로^정재;D_역학^박철|C_세포^고봉|화법B^이경|C_세포^고봉|A_물질^김동;E_인공^손은|영어A^이홍|B_기하^김인|미적Ⅰ^이현|D_역학^박철;A_물질^김동|화법A^김효|E_인공^손은|영어B^노연|미적Ⅰ^이현;영어B^노연|D_역학^박철|스생1^양홍|B_기하^김인|창체^창*;미적Ⅰ^이현|화법B^이경|-|A_물질^김동|창체^창*;C_세포^고봉|E_인공^손은|-|영어A^이홍|-;-|-|-|-|-
+2-7:인공^손은|B_세포^고봉|진로^송현|화법B^이경|영어B^노연;D_지템^신지|C_물질^김동|미적Ⅰ^석기|C_물질^김동|A_역학^박철;화법B^이경|영어B^노연|B_세포^고봉|인공^손은|D_지템^신지;A_역학^박철|미적Ⅰ^석기|화법A^김효|스생1^양홍|인공^손은;영어A^이홍|D_지템^신지|영어A^이홍|B_세포^고봉|창체^창*;미적Ⅰ^석기|스생1^양홍|-|A_역학^박철|창체^창*;C_물질^김동|화법A^김효|-|미적Ⅰ^석기|-;-|-|-|-|-
+2-8:영어B^노연|B_역학^박철|미적Ⅰ^석기|인공^손은|진로^송현;D_물질^김동|C_기하^김인|인공^손은|C_기하^김인|A_지템^신지;미적Ⅰ^석기|미적Ⅰ^석기|B_역학^박철|화법A^김효|D_물질^김동;A_지템^신지|인공^손은|영어A^이홍|미적Ⅰ^석기|화법A^김효;화법B^이경|D_물질^김동|화법B^이경|B_역학^박철|창체^창*;스생1^양홍|영어A^이홍|-|A_지템^신지|창체^창*;C_기하^김인|스생1^양홍|-|영어B^노연|-;-|-|-|-|-
+3-1:B_생윤^이정|회화^서원|수탐^김현|B_생윤^이정|독서^김시;회화^서원|수탐^김현|C_사문^채영|동아^강진|과사^정보;과사^정보|독서^김시|회화^서원|독서^김시|동아^강진;A_경수^김용|사연^조진|A_경수^김용|한문Ⅰ^김영|E_일어Ⅱ^이한;진로^송현|스생^박병|B_생윤^이정|A_경수^김용|창체^창*;C_사문^채영|한문Ⅰ^김영|-|회화^서원|창체^창*;동아^강진|C_사문^채영|-|수탐^김현|-;-|-|-|-|-
+3-2:B_개론^박병|스생^박병|과사^정보|B_개론^박병|사문^채영;독서^김시|F_일어Ⅱ^이한|C_생윤^이정|회화^서원|진로^송현;수탐^김인|사문^채영|한문Ⅰ^김영|한문Ⅰ^김영|수탐^김인;A_고전^김시|수탐^김인|A_고전^김시|사문^채영|수탐^김인;사연^이채|독서^김시|B_개론^박병|A_고전^김시|창체^창*;C_생윤^이정|회화^서원|-|과사^정보|창체^창*;회화^서원|C_생윤^이정|-|독서^김시|-;-|-|-|-|-
+3-3:B_세문^이채|회화^유혜|회화^유혜|B_세문^이채|수탐^김인;한문Ⅰ^김영|독서^김시|C_한지^김미|H_과사^정보|한문Ⅰ^김영;진로^송현|생윤^이정|스생^박병|수탐^김인|생윤^이정;A_사문^채영|H_과사^김완|A_사문^채영|일어Ⅱ^이한|독서^김시;회화^유혜|수탐^김인|B_세문^이채|A_사문^채영|창체^창*;C_한지^김미|사연^이채|-|회화^유혜|창체^창*;독서^김시|C_한지^김미|-|생윤^이정|-;-|-|-|-|-
+3-4:B_사문^채영|G_일어Ⅱ^이한|과사^박철|B_사문^채영|한문Ⅰ^김영;J_수탐^김현|한지^김미|C_동아^강진|한지^김미|독서^김시;회화^유혜|J_수탐^김현|독서^김시|사연^김미|독서^김시;A_생윤^이정|과사^박철|A_생윤^이정|스생^박병|J_수탐^김현;한문Ⅰ^김영|회화^유혜|B_사문^채영|A_생윤^이정|창체^창*;C_동아^강진|회화^유혜|-|진로^송현|창체^창*;한지^김미|C_동아^강진|-|회화^유혜|-;-|-|-|-|-
+3-5:독서^박형|G_중어Ⅱ^송현|회화^서원|한문Ⅰ^김영|B_물리Ⅱ^김완;J_미적^김용|스생^박병|과연^김완|화학Ⅱ^김현|I_고윤^이정;I_고윤^이정|J_미적^김용|화학Ⅱ^김현|C_생명Ⅱ^정보|화학Ⅱ^김현;A_개론^박병|회화^서원|A_개론^박병|독서^박형|J_미적^김용;회화^서원|진로^송현|독서^박형|A_개론^박병|창체^창*;한문Ⅰ^김영|C_생명Ⅱ^김진|-|B_물리Ⅱ^김완|창체^창*;C_생명Ⅱ^정보|B_물리Ⅱ^김완|-|회화^서원|-;-|-|-|-|-
+3-6:생명Ⅱ^정보|미적^김용|독서^박형|진로^이한|B_기하^김현;스생^박병|F_중어Ⅱ^송현|회화^서원|H_여지^정범|회화^서원;한문Ⅰ^김영|과연^김현|생명Ⅱ^정보|C_화학Ⅱ^김현|미적^김용;A_물리Ⅱ^김완|H_여지^정범|A_물리Ⅱ^김완|회화^서원|한문Ⅰ^김영;독서^박형|회화^서원|미적^김용|A_물리Ⅱ^김완|창체^창*;생명Ⅱ^정보|C_화학Ⅱ^김현|-|B_기하^김현|창체^창*;C_화학Ⅱ^김현|B_기하^김현|-|독서^박형|-;-|-|-|-|-
+3-7:과연^김완|독서^박형|진로^손은|물리Ⅱ^김완|B_지구Ⅱ^문영;일어Ⅱ^이한|회화^유혜|미적^김용|H_고윤^이정|독서^박형;독서^박형|물리Ⅱ^김완|회화^유혜|C_기하^김현|물리Ⅱ^김완;A_화학Ⅱ^김현|H_고윤^이정|A_화학Ⅱ^김현|회화^유혜|스생^박병;미적^김용|한문Ⅰ^김영|한문Ⅰ^김영|A_화학Ⅱ^김현|창체^창*;회화^유혜|C_기하^김현|-|B_지구Ⅱ^문영|창체^창*;C_기하^김현|B_지구Ⅱ^문영|-|미적^김용|-;-|-|-|-|-
+3-8:미적^김용|한문Ⅰ^김영|미적^김용|독서^박형|B_화학Ⅱ^김현;회화^유혜|미적^김용|회화^유혜|회화^유혜|I_여지^정범;I_여지^정범|진로^손은|독서^박형|C_물리Ⅱ^김완|스생^박병;A_생명Ⅱ^정보|회화^유혜|A_생명Ⅱ^정보|기하^김현|E_중어Ⅱ^송현;기하^김현|독서^박형|기하^김현|A_생명Ⅱ^정보|창체^창*;과연^김현|C_물리Ⅱ^김완|-|B_화학Ⅱ^김현|창체^창*;C_물리Ⅱ^김완|B_화학Ⅱ^김현|-|한문Ⅰ^김영|-;-|-|-|-|-`;
+    const actualTimetables = new Map(sourceSnapshot.split("\n").map(line => {
+      const [className, encodedPeriods] = line.split(":");
+      const scheduleByPeriod = encodedPeriods.split(";").map(period => period.split("|").map(value => {
+        if (value === "-") return null;
+        const [subject, teacher] = value.split("^");
+        return { subject, teacher, room: "", tone: "blue", empty: false };
+      }));
+      return [className, weekdays.map((_, dayIndex) => scheduleByPeriod.map(period => period[dayIndex]))];
+    }));
     const gradeSelect = document.querySelector("#grade-select");
     const classSelect = document.querySelector("#class-select");
     const scheduleBody = document.querySelector("#schedule-body");
@@ -295,11 +312,10 @@
     const subjectInput = document.querySelector("#subject-input");
     const roomInput = document.querySelector("#room-input");
     const teacherInput = document.querySelector("#teacher-input");
-    let weekOffset = 0;
     let activeSlot = null;
 
     function classKey() {
-      return `guri-timetable-${gradeSelect.value}-${classSelect.value}`;
+      return `guri-timetable-2026-11-02-${gradeSelect.value}-${classSelect.value}`;
     }
 
     function readSchedule() {
@@ -311,34 +327,12 @@
       }
     }
 
-    function makeDefaultSchedule() {
-      const shift = (Number(gradeSelect.value) + Number(classSelect.value) - 2) % subjectPool.length;
-      return defaultNames.map((day, dayIndex) => day.map((name, periodIndex) => {
-        const subject = subjectPool.find(item => item.name === name);
-        return {
-          subject: subject.name,
-          room: `${gradeSelect.value}-${classSelect.value} 교실`,
-          teacher: "담당 교사",
-          tone: subjectPool[(subjectPool.indexOf(subject) + shift) % subjectPool.length].tone,
-          empty: false
-        };
-      }));
-    }
-
-    function mondayForOffset(offset) {
-      const date = new Date();
-      date.setHours(0, 0, 0, 0);
-      const day = date.getDay();
-      date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day) + offset * 7);
-      return date;
-    }
-
     function formatDate(date, options) {
       return new Intl.DateTimeFormat("ko-KR", options).format(date);
     }
 
     function render() {
-      const monday = mondayForOffset(weekOffset);
+      const monday = snapshotMonday;
       const friday = new Date(monday);
       friday.setDate(monday.getDate() + 4);
       weekLabel.textContent = `${formatDate(monday, { year: "numeric", month: "long" })} ${monday.getDate()}일 - ${friday.getDate()}일`;
@@ -357,7 +351,7 @@
         return isToday;
       });
 
-      const schedule = readSchedule() || makeDefaultSchedule();
+      const schedule = readSchedule() || actualTimetables.get(`${gradeSelect.value}-${classSelect.value}`);
       scheduleBody.replaceChildren();
       periods.forEach((time, periodIndex) => {
         const row = document.createElement("tr");
@@ -373,8 +367,9 @@
           button.type = "button";
           button.className = `lesson${lesson.empty || !lesson.subject ? " lesson-empty" : ""}`;
           button.dataset.tone = lesson.tone || "blue";
-          button.setAttribute("aria-label", `${weekdays[dayIndex]}요일 ${periodIndex + 1}교시 ${lesson.subject || "빈 시간"}, 눌러 수정`);
-          button.innerHTML = `<span class="lesson-subject">${escapeHtml(lesson.subject || "빈 시간")}</span><span class="lesson-room">${escapeHtml(lesson.room || "수업 없음")}</span>`;
+          button.setAttribute("aria-label", `${weekdays[dayIndex]}요일 ${periodIndex + 1}교시 ${lesson.subject || "빈 시간"}${lesson.teacher ? `, ${lesson.teacher}` : ""}, 눌러 수정`);
+          const details = [lesson.teacher, lesson.room].filter(Boolean).join(" · ");
+          button.innerHTML = `<span class="lesson-subject">${escapeHtml(lesson.subject || "빈 시간")}</span><span class="lesson-room">${escapeHtml(details)}</span>`;
           button.addEventListener("click", () => openEditor(dayIndex, periodIndex, lesson, monday));
           td.append(button);
           row.append(td);
@@ -400,7 +395,7 @@
     }
 
     function updateLesson(clear = false) {
-      const schedule = readSchedule() || makeDefaultSchedule();
+      const schedule = readSchedule() || JSON.parse(JSON.stringify(actualTimetables.get(`${gradeSelect.value}-${classSelect.value}`)));
       const { dayIndex, periodIndex } = activeSlot;
       const previous = schedule[dayIndex][periodIndex];
       schedule[dayIndex][periodIndex] = clear ? { subject: "", room: "", teacher: "", tone: "blue", empty: true } : {
@@ -423,7 +418,7 @@
     function refreshClasses() {
       const selectedClass = classSelect.value || "1";
       classSelect.replaceChildren();
-      for (let number = 1; number <= 10; number += 1) {
+      for (let number = 1; number <= 8; number += 1) {
         const option = document.createElement("option");
         option.value = String(number);
         option.textContent = `${number}반`;
@@ -435,9 +430,6 @@
 
     gradeSelect.addEventListener("change", refreshClasses);
     classSelect.addEventListener("change", render);
-    document.querySelector("#previous-week").addEventListener("click", () => { weekOffset -= 1; render(); });
-    document.querySelector("#next-week").addEventListener("click", () => { weekOffset += 1; render(); });
-    document.querySelector("#today-button").addEventListener("click", () => { weekOffset = 0; render(); });
     document.querySelector("#print-button").addEventListener("click", () => window.print());
     document.querySelector("#close-dialog").addEventListener("click", () => dialog.close());
     document.querySelector("#cancel-dialog").addEventListener("click", () => dialog.close());
