@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183b67">
+  <title>구리고 시간표</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172b43;
+      --muted: #6d7d90;
+      --line: #dce5ed;
+      --paper: #ffffff;
+      --canvas: #f2f6f9;
+      --blue: #183b67;
+      --blue-light: #eaf2f8;
+      --mint: #dff3ec;
+      --mint-ink: #18745c;
+      --coral: #e4755d;
+      --shadow: 0 12px 32px rgb(22 46 72 / 8%);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, select, input { font: inherit; }
+    button { color: inherit; }
+
+    .topbar {
+      height: 58px;
+      padding: 0 max(24px, calc((100vw - 1240px) / 2));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+      background: var(--blue);
+      border-bottom: 3px solid #65bda2;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 800; }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgb(255 255 255 / 50%);
+      border-radius: 6px;
+      color: #b6e8d8;
+      font-size: 17px;
+      line-height: 1;
+    }
+    .topbar-meta { color: #d4dfeb; font-size: 12px; }
+
+    .page { width: min(1240px, calc(100% - 48px)); margin: 34px auto 60px; }
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+    .eyebrow { margin: 0 0 8px; color: var(--mint-ink); font-size: 11px; font-weight: 800; letter-spacing: 1.1px; }
+    h1 { margin: 0; font-size: 27px; letter-spacing: 0; line-height: 1.25; }
+    .heading-note { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+    .term-label { padding: 8px 11px; border: 1px solid var(--line); border-radius: 5px; background: #fff; color: #53687d; font-size: 12px; white-space: nowrap; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      border-radius: 7px 7px 0 0;
+      background: var(--paper);
+    }
+    .class-controls, .week-controls { display: flex; align-items: center; gap: 8px; }
+    .control-label { margin-right: 3px; color: #52677d; font-size: 12px; font-weight: 700; }
+    select, .button {
+      height: 36px;
+      border: 1px solid #cad6e1;
+      border-radius: 4px;
+      background: #fff;
+    }
+    select { min-width: 77px; padding: 0 29px 0 10px; color: var(--ink); cursor: pointer; }
+    .button { padding: 0 12px; cursor: pointer; font-size: 12px; font-weight: 700; transition: background .15s, border-color .15s; }
+    .button:hover { border-color: #9eb4c9; background: #f6f9fb; }
+    .button-icon { width: 36px; padding: 0; font-size: 19px; }
+    .button-primary { border-color: var(--blue); background: var(--blue); color: #fff; }
+    .button-primary:hover { border-color: #285687; background: #285687; }
+    .week-label { min-width: 190px; text-align: center; font-size: 14px; font-weight: 800; }
+
+    .table-frame { overflow-x: auto; border: 1px solid var(--line); border-radius: 0 0 7px 7px; background: #fff; box-shadow: var(--shadow); }
+    table { width: 100%; min-width: 850px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    col.period-col { width: 82px; }
+    thead th { height: 62px; padding: 10px 8px; border-right: 1px solid #dfe7ee; border-bottom: 1px solid #d6e0e9; background: #f8fafc; color: #40566d; text-align: center; }
+    thead th:last-child, tbody td:last-child { border-right: 0; }
+    thead th:first-child { background: #edf2f6; }
+    .day-name { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 800; }
+    .day-date { color: #77889a; font-size: 11px; font-weight: 500; }
+    thead th.is-today { background: #e5f4ee; color: #17684f; }
+    thead th.is-today .day-date { color: #38846e; }
+    tbody th {
+      height: 82px;
+      padding: 8px 4px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+      text-align: center;
+      vertical-align: middle;
+    }
+    tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+    .period-number { display: block; font-size: 13px; font-weight: 800; }
+    .period-time { display: block; margin-top: 5px; color: #8795a3; font-size: 10px; font-weight: 500; }
+    tbody td { height: 82px; padding: 5px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); vertical-align: stretch; }
+    tbody td.is-today { background: #fbfdfc; }
+    .lesson {
+      position: relative;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 4px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: #f0f5f8;
+      cursor: pointer;
+      transition: border-color .15s, transform .15s, background .15s;
+    }
+    .lesson:hover { z-index: 1; transform: translateY(-1px); border-color: #a9bfce; background: #eaf2f6; }
+    .lesson[data-tone="mint"] { background: #e6f4ef; }
+    .lesson[data-tone="blue"] { background: #e8f0f7; }
+    .lesson[data-tone="sand"] { background: #f5f1e7; }
+    .lesson[data-tone="rose"] { background: #f8ece8; }
+    .lesson[data-tone="lilac"] { background: #eef0f7; }
+    .lesson-subject { max-width: 100%; overflow: hidden; color: #203b53; font-size: 13px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .lesson-room { color: #718294; font-size: 10px; }
+    .lesson-empty { background: #fafbfd; border: 1px dashed #dce5ec; }
+    .lesson-empty .lesson-subject { color: #a5b0bc; font-weight: 500; }
+    .table-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 16px; border-top: 1px solid var(--line); color: #718194; font-size: 11px; }
+    .legend { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: #54a98d; }
+
+    dialog { width: min(420px, calc(100% - 32px)); padding: 0; border: 0; border-radius: 8px; box-shadow: 0 20px 70px rgb(15 31 48 / 25%); }
+    dialog::backdrop { background: rgb(17 34 52 / 48%); }
+    .dialog-head { display: flex; align-items: start; justify-content: space-between; padding: 20px 22px 15px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0; font-size: 17px; }
+    .dialog-subtitle { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .close-button { width: 30px; height: 30px; border: 0; border-radius: 4px; background: transparent; color: #718194; cursor: pointer; font-size: 20px; }
+    .close-button:hover { background: #f0f4f7; }
+    .dialog-form { padding: 18px 22px 20px; }
+    .field { display: block; margin-bottom: 14px; }
+    .field span { display: block; margin-bottom: 6px; color: #52677d; font-size: 12px; font-weight: 700; }
+    .field input { width: 100%; height: 39px; padding: 0 10px; border: 1px solid #cad6e1; border-radius: 4px; outline: none; }
+    .field input:focus, select:focus, button:focus-visible { outline: 2px solid #67b99e; outline-offset: 2px; }
+    .dialog-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+    .dialog-actions-right { display: flex; gap: 8px; }
+    .button-danger { color: #a64e43; }
+    .button-danger:hover { border-color: #e4b7b0; background: #fff7f5; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 700px) {
+      .topbar { height: 52px; padding: 0 16px; }
+      .topbar-meta { font-size: 10px; }
+      .page { width: calc(100% - 28px); margin: 25px auto 40px; }
+      .page-heading { align-items: start; margin-bottom: 17px; }
+      h1 { font-size: 23px; }
+      .heading-note { max-width: 255px; font-size: 12px; line-height: 1.5; }
+      .term-label { padding: 7px 8px; font-size: 10px; }
+      .toolbar { align-items: stretch; flex-direction: column; gap: 12px; padding: 12px; }
+      .class-controls, .week-controls { justify-content: space-between; }
+      .class-controls select { flex: 1; }
+      .control-label { margin-right: auto; }
+      .week-controls { gap: 6px; }
+      .week-label { min-width: 0; flex: 1; font-size: 12px; }
+      .button { height: 34px; padding-right: 9px; padding-left: 9px; }
+      .button-icon { width: 34px; padding: 0; }
+      .table-footer { align-items: flex-start; flex-direction: column; gap: 7px; }
+      .table-frame { border-radius: 0 0 5px 5px; }
+      table { min-width: 760px; }
+      col.period-col { width: 68px; }
+      thead th { height: 56px; }
+      tbody th, tbody td { height: 74px; }
+      .lesson { height: 62px; }
+      .lesson-subject { font-size: 12px; }
+    }
+    @media print {
+      body { background: #fff; }
+      .topbar { height: 42px; padding: 0 0; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .page { width: 100%; margin: 20px 0; }
+      .page-heading { margin-bottom: 12px; }
+      .toolbar { display: none; }
+      .table-frame { overflow: visible; box-shadow: none; }
+      table { min-width: 0; }
+      tbody th, tbody td { height: 65px; }
+      .lesson { height: 55px; }
+      .lesson:hover { transform: none; }
+      .table-footer { padding-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">▦</span><span>구리고 시간표</span></div>
+    <span class="topbar-meta">우리 반 주간 수업 안내</span>
+  </header>
+
+  <main class="page">
+    <section class="page-heading" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">CLASS TIMETABLE</p>
+        <h1 id="page-title">학급 시간표</h1>
+        <p class="heading-note">칸을 선택하면 과목과 교실 정보를 수정할 수 있습니다.</p>
+      </div>
+      <span class="term-label">2026학년도 · 2학기</span>
+    </section>
+
+    <section class="toolbar" aria-label="시간표 설정">
+      <div class="class-controls">
+        <span class="control-label">학급 선택</span>
+        <label class="sr-only" for="grade-select">학년</label>
+        <select id="grade-select" aria-label="학년">
+          <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+        </select>
+        <label class="sr-only" for="class-select">반</label>
+        <select id="class-select" aria-label="반"></select>
+      </div>
+      <div class="week-controls" aria-label="주간 이동">
+        <button class="button button-icon" id="previous-week" type="button" title="이전 주" aria-label="이전 주">‹</button>
+        <span class="week-label" id="week-label" aria-live="polite"></span>
+        <button class="button button-icon" id="next-week" type="button" title="다음 주" aria-label="다음 주">›</button>
+        <button class="button" id="today-button" type="button">오늘</button>
+        <button class="button button-primary" id="print-button" type="button" title="시간표 인쇄">인쇄</button>
+      </div>
+    </section>
+
+    <section class="table-frame" aria-label="주간 시간표">
+      <table>
+        <caption class="sr-only" id="table-caption">학급 주간 시간표</caption>
+        <colgroup><col class="period-col"><col span="5"></colgroup>
+        <thead><tr id="day-header"><th scope="col">교시</th></tr></thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+      <div class="table-footer">
+        <span>표시된 시간표는 예시입니다. 편집한 내용은 이 브라우저에 저장됩니다.</span>
+        <span class="legend"><i class="legend-dot" aria-hidden="true"></i>오늘</span>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="lesson-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-head">
+      <div><h2 id="dialog-title">수업 정보 수정</h2><p class="dialog-subtitle" id="dialog-subtitle"></p></div>
+      <button class="close-button" id="close-dialog" type="button" aria-label="닫기">×</button>
+    </div>
+    <form class="dialog-form" id="lesson-form">
+      <label class="field"><span>과목</span><input id="subject-input" maxlength="20" autocomplete="off" placeholder="예: 국어"></label>
+      <label class="field"><span>교실</span><input id="room-input" maxlength="24" autocomplete="off" placeholder="예: 2-3 교실"></label>
+      <label class="field"><span>선생님</span><input id="teacher-input" maxlength="20" autocomplete="off" placeholder="예: 김선생님"></label>
+      <div class="dialog-actions">
+        <button class="button button-danger" id="clear-lesson" type="button">비우기</button>
+        <div class="dialog-actions-right"><button class="button" id="cancel-dialog" type="button">취소</button><button class="button button-primary" type="submit">저장</button></div>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const weekdays = ["월", "화", "수", "목", "금"];
+    const periods = ["08:40", "09:40", "10:40", "11:40", "13:10", "14:10", "15:10"];
+    const subjectPool = [
+      { name: "국어", tone: "rose" }, { name: "수학", tone: "blue" },
+      { name: "영어", tone: "mint" }, { name: "통합사회", tone: "sand" },
+      { name: "과학", tone: "mint" }, { name: "한국사", tone: "rose" },
+      { name: "체육", tone: "blue" }, { name: "음악", tone: "lilac" },
+      { name: "미술", tone: "sand" }, { name: "정보", tone: "lilac" },
+      { name: "창체", tone: "blue" }, { name: "진로", tone: "mint" }
+    ];
+    const defaultNames = [
+      ["국어", "수학", "영어", "통합사회", "과학", "체육", "창체"],
+      ["수학", "영어", "한국사", "국어", "음악", "과학", "미술"],
+      ["영어", "과학", "수학", "체육", "국어", "정보", "진로"],
+      ["한국사", "국어", "통합사회", "수학", "영어", "미술", "과학"],
+      ["과학", "음악", "국어", "영어", "수학", "체육", "정보"]
+    ];
+    const gradeSelect = document.querySelector("#grade-select");
+    const classSelect = document.querySelector("#class-select");
+    const scheduleBody = document.querySelector("#schedule-body");
+    const dayHeader = document.querySelector("#day-header");
+    const weekLabel = document.querySelector("#week-label");
+    const dialog = document.querySelector("#lesson-dialog");
+    const subjectInput = document.querySelector("#subject-input");
+    const roomInput = document.querySelector("#room-input");
+    const teacherInput = document.querySelector("#teacher-input");
+    let weekOffset = 0;
+    let activeSlot = null;
+
+    function classKey() {
+      return `guri-timetable-${gradeSelect.value}-${classSelect.value}`;
+    }
+
+    function readSchedule() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(classKey()) || "null");
+        return Array.isArray(saved) && saved.length === 5 ? saved : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function makeDefaultSchedule() {
+      const shift = (Number(gradeSelect.value) + Number(classSelect.value) - 2) % subjectPool.length;
+      return defaultNames.map((day, dayIndex) => day.map((name, periodIndex) => {
+        const subject = subjectPool.find(item => item.name === name);
+        return {
+          subject: subject.name,
+          room: `${gradeSelect.value}-${classSelect.value} 교실`,
+          teacher: "담당 교사",
+          tone: subjectPool[(subjectPool.indexOf(subject) + shift) % subjectPool.length].tone,
+          empty: false
+        };
+      }));
+    }
+
+    function mondayForOffset(offset) {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      const day = date.getDay();
+      date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day) + offset * 7);
+      return date;
+    }
+
+    function formatDate(date, options) {
+      return new Intl.DateTimeFormat("ko-KR", options).format(date);
+    }
+
+    function render() {
+      const monday = mondayForOffset(weekOffset);
+      const friday = new Date(monday);
+      friday.setDate(monday.getDate() + 4);
+      weekLabel.textContent = `${formatDate(monday, { year: "numeric", month: "long" })} ${monday.getDate()}일 - ${friday.getDate()}일`;
+      document.querySelector("#table-caption").textContent = `${gradeSelect.value}학년 ${classSelect.value}반 ${weekLabel.textContent} 시간표`;
+
+      dayHeader.replaceChildren(dayHeader.firstElementChild);
+      const dates = weekdays.map((_, index) => {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + index);
+        const isToday = date.toDateString() === new Date().toDateString();
+        const th = document.createElement("th");
+        th.scope = "col";
+        if (isToday) th.classList.add("is-today");
+        th.innerHTML = `<span class="day-name">${weekdays[index]}요일</span><span class="day-date">${date.getMonth() + 1}.${String(date.getDate()).padStart(2, "0")}</span>`;
+        dayHeader.append(th);
+        return isToday;
+      });
+
+      const schedule = readSchedule() || makeDefaultSchedule();
+      scheduleBody.replaceChildren();
+      periods.forEach((time, periodIndex) => {
+        const row = document.createElement("tr");
+        const th = document.createElement("th");
+        th.scope = "row";
+        th.innerHTML = `<span class="period-number">${periodIndex + 1}교시</span><span class="period-time">${time}</span>`;
+        row.append(th);
+        weekdays.forEach((_, dayIndex) => {
+          const td = document.createElement("td");
+          if (dates[dayIndex]) td.classList.add("is-today");
+          const lesson = schedule[dayIndex]?.[periodIndex] || { subject: "", room: "", teacher: "", empty: true };
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `lesson${lesson.empty || !lesson.subject ? " lesson-empty" : ""}`;
+          button.dataset.tone = lesson.tone || "blue";
+          button.setAttribute("aria-label", `${weekdays[dayIndex]}요일 ${periodIndex + 1}교시 ${lesson.subject || "빈 시간"}, 눌러 수정`);
+          button.innerHTML = `<span class="lesson-subject">${escapeHtml(lesson.subject || "빈 시간")}</span><span class="lesson-room">${escapeHtml(lesson.room || "수업 없음")}</span>`;
+          button.addEventListener("click", () => openEditor(dayIndex, periodIndex, lesson, monday));
+          td.append(button);
+          row.append(td);
+        });
+        scheduleBody.append(row);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[character]);
+    }
+
+    function openEditor(dayIndex, periodIndex, lesson, monday) {
+      activeSlot = { dayIndex, periodIndex };
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + dayIndex);
+      document.querySelector("#dialog-subtitle").textContent = `${gradeSelect.value}학년 ${classSelect.value}반 · ${formatDate(date, { month: "long", day: "numeric" })} ${weekdays[dayIndex]}요일 ${periodIndex + 1}교시`;
+      subjectInput.value = lesson.subject || "";
+      roomInput.value = lesson.room || "";
+      teacherInput.value = lesson.teacher || "";
+      dialog.showModal();
+      subjectInput.focus();
+    }
+
+    function updateLesson(clear = false) {
+      const schedule = readSchedule() || makeDefaultSchedule();
+      const { dayIndex, periodIndex } = activeSlot;
+      const previous = schedule[dayIndex][periodIndex];
+      schedule[dayIndex][periodIndex] = clear ? { subject: "", room: "", teacher: "", tone: "blue", empty: true } : {
+        subject: subjectInput.value.trim(),
+        room: roomInput.value.trim(),
+        teacher: teacherInput.value.trim(),
+        tone: previous.tone || "blue",
+        empty: !subjectInput.value.trim()
+      };
+      try {
+        localStorage.setItem(classKey(), JSON.stringify(schedule));
+      } catch {
+        window.alert("브라우저 저장 공간을 사용할 수 없습니다. 설정을 확인해 주세요.");
+        return;
+      }
+      dialog.close();
+      render();
+    }
+
+    function refreshClasses() {
+      const selectedClass = classSelect.value || "1";
+      classSelect.replaceChildren();
+      for (let number = 1; number <= 10; number += 1) {
+        const option = document.createElement("option");
+        option.value = String(number);
+        option.textContent = `${number}반`;
+        classSelect.append(option);
+      }
+      classSelect.value = selectedClass;
+      render();
+    }
+
+    gradeSelect.addEventListener("change", refreshClasses);
+    classSelect.addEventListener("change", render);
+    document.querySelector("#previous-week").addEventListener("click", () => { weekOffset -= 1; render(); });
+    document.querySelector("#next-week").addEventListener("click", () => { weekOffset += 1; render(); });
+    document.querySelector("#today-button").addEventListener("click", () => { weekOffset = 0; render(); });
+    document.querySelector("#print-button").addEventListener("click", () => window.print());
+    document.querySelector("#close-dialog").addEventListener("click", () => dialog.close());
+    document.querySelector("#cancel-dialog").addEventListener("click", () => dialog.close());
+    document.querySelector("#clear-lesson").addEventListener("click", () => updateLesson(true));
+    document.querySelector("#lesson-form").addEventListener("submit", event => { event.preventDefault(); updateLesson(); });
+    dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+    refreshClasses();
+  </script>
+</body>
+</html>
